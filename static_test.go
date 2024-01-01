@@ -182,6 +182,7 @@ var (
 	staticDenco           http.Handler
 	staticEcho            http.Handler
 	staticGin             http.Handler
+	staticLit             http.Handler
 	staticGocraftWeb      http.Handler
 	staticGoji            http.Handler
 	staticGojiv2          http.Handler
@@ -247,6 +248,9 @@ func init() {
 	})
 	calcMem("Gin", func() {
 		staticGin = loadGin(staticRoutes)
+	})
+	calcMem("Lit", func() {
+		staticLit = loadLit(staticRoutes)
 	})
 	calcMem("GocraftWeb", func() {
 		staticGocraftWeb = loadGocraftWeb(staticRoutes)
@@ -345,9 +349,9 @@ func BenchmarkChi_StaticAll(b *testing.B) {
 	benchRoutes(b, staticChi, staticRoutes)
 }
 
-// func BenchmarkCloudyKitRouter_StaticAll(b *testing.B) {
-// 	benchRoutes(b, staticCloudyKitRouter, staticRoutes)
-// }
+//	func BenchmarkCloudyKitRouter_StaticAll(b *testing.B) {
+//		benchRoutes(b, staticCloudyKitRouter, staticRoutes)
+//	}
 func BenchmarkDenco_StaticAll(b *testing.B) {
 	benchRoutes(b, staticDenco, staticRoutes)
 }
@@ -356,6 +360,9 @@ func BenchmarkEcho_StaticAll(b *testing.B) {
 }
 func BenchmarkGin_StaticAll(b *testing.B) {
 	benchRoutes(b, staticGin, staticRoutes)
+}
+func BenchmarkLit_StaticAll(b *testing.B) {
+	benchRoutes(b, staticLit, staticRoutes)
 }
 func BenchmarkGocraftWeb_StaticAll(b *testing.B) {
 	benchRoutes(b, staticGocraftWeb, staticRoutes)
@@ -406,9 +413,9 @@ func BenchmarkR2router_StaticAll(b *testing.B) {
 	benchRoutes(b, staticR2router, staticRoutes)
 }
 
-// func BenchmarkRevel_StaticAll(b *testing.B) {
-// 	benchRoutes(b, staticRevel, staticRoutes)
-// }
+//	func BenchmarkRevel_StaticAll(b *testing.B) {
+//		benchRoutes(b, staticRevel, staticRoutes)
+//	}
 func BenchmarkRivet_StaticAll(b *testing.B) {
 	benchRoutes(b, staticRivet, staticRoutes)
 }

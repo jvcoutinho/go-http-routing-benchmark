@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jvcoutinho/lit"
 	"io"
 	"log"
 	"net/http"
@@ -567,6 +568,40 @@ func loadGin(routes []route) http.Handler {
 func loadGinSingle(method, path string, handle gin.HandlerFunc) http.Handler {
 	router := gin.New()
 	router.Handle(method, path, handle)
+	return router
+}
+
+// Lit
+func litHandle(_ *lit.Request) lit.Response { return nil }
+
+func litHandleWrite(r *lit.Request) lit.Response {
+	return lit.ResponseFunc(func(w http.ResponseWriter) {
+		io.WriteString(w, r.URIParameters()["name"])
+	})
+}
+
+func litHandleTest(r *lit.Request) lit.Response {
+	return lit.ResponseFunc(func(w http.ResponseWriter) {
+		io.WriteString(w, r.Base().RequestURI)
+	})
+}
+
+func loadLit(routes []route) http.Handler {
+	h := litHandle
+	if loadTestHandler {
+		h = litHandleTest
+	}
+
+	router := lit.NewRouter()
+	for _, route := range routes {
+		router.Handle(route.path, route.method, h)
+	}
+	return router
+}
+
+func loadLitSingle(method, path string, handle lit.Handler) http.Handler {
+	router := lit.NewRouter()
+	router.Handle(path, method, handle)
 	return router
 }
 
@@ -1239,18 +1274,18 @@ func loadPatSingle(method, path string, handler http.Handler) http.Handler {
 }
 
 // Possum
-func possumHandler(c *possum.Context) error {
-	return nil
+func possumHandler(w http.ResponseWriter, req *http.Request) (any, int) {
+	return nil, 0
 }
 
-func possumHandlerWrite(c *possum.Context) error {
-	io.WriteString(c.Response, c.Request.URL.Query().Get("name"))
-	return nil
+func possumHandlerWrite(w http.ResponseWriter, req *http.Request) (any, int) {
+	io.WriteString(w, req.URL.Query().Get("name"))
+	return nil, 0
 }
 
-func possumHandlerTest(c *possum.Context) error {
-	io.WriteString(c.Response, c.Request.RequestURI)
-	return nil
+func possumHandlerTest(w http.ResponseWriter, req *http.Request) (any, int) {
+	io.WriteString(w, req.RequestURI)
+	return nil, 0
 }
 
 func loadPossum(routes []route) http.Handler {
@@ -1259,16 +1294,16 @@ func loadPossum(routes []route) http.Handler {
 		h = possumHandlerTest
 	}
 
-	router := possum.NewServerMux()
+	router := possum.New()
 	for _, route := range routes {
-		router.HandleFunc(possumrouter.Simple(route.path), h, possumview.Simple("text/html", "utf-8"))
+		router.Add(possumrouter.Simple(route.path), h, possumview.Simple("text/html", "utf-8"))
 	}
 	return router
 }
 
 func loadPossumSingle(method, path string, handler possum.HandlerFunc) http.Handler {
-	router := possum.NewServerMux()
-	router.HandleFunc(possumrouter.Simple(path), handler, possumview.Simple("text/html", "utf-8"))
+	router := possum.New()
+	router.Add(possumrouter.Simple(path), handler, possumview.Simple("text/html", "utf-8"))
 	return router
 }
 
